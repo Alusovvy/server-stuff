@@ -1,6 +1,6 @@
-package org.networking.httpserver;
+package org.networking.httpserver.request;
 
-public enum RequestType {
+public enum HttpRequestType {
     GET("GET"),
     POST("POST"),
     PUT("PUT"),
@@ -8,7 +8,7 @@ public enum RequestType {
 
     private final String value;
 
-    RequestType(String responseValue) {
+    HttpRequestType(String responseValue) {
         this.value = responseValue;
     }
 
