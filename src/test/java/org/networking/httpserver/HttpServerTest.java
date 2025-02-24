@@ -2,15 +2,19 @@ package org.networking.httpserver;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.networking.httpserver.request.HttpRequestType;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.awaitility.Awaitility.await;
 import static org.networking.utils.HttpRequestSender.sendHttpRequest;
 
 class HttpServerTest {
@@ -46,6 +50,27 @@ class HttpServerTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    @Test
+    @Order(0)
+    void addFileResponseTest() throws IOException {
+        String pathForFile = "/files/pliczek.txt";
+        var response = sendHttpRequest(HttpRequestType.POST, "majtkimarynarza, dupapiekarza",pathForFile );
+        assertThat(response.getResponseType().getStatusCode()).isEqualTo(201);
+
+        Path filepath = Path.of(System.getProperty("java.io.tmpdir")+pathForFile);
+
+        var file = Files.readString(filepath);
+        assertThat(file).isEqualTo("majtkimarynarza, dupapiekarza");
+    }
+
+    @Test
+    @Order(1)
+    void getFileResponseTest() {
+        var getFileResponse = sendHttpRequest(HttpRequestType.GET, "/files/pliczek.txt");
+        assertThat(getFileResponse.getBody()).isEqualToIgnoringCase("majtkimarynarza, dupapiekarza");
     }
 
     @Test

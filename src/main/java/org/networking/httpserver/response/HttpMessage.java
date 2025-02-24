@@ -75,7 +75,7 @@ public class HttpMessage {
             StringBuilder content = new StringBuilder();
             while (reader.ready()) {
                 String line = reader.readLine();
-                if (line.contains("Content-Type:")) {
+                if (line.contains("Content-Length:")) {
                     while (reader.ready()) {
                         content.append((char) reader.read());
                     }

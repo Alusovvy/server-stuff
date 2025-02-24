@@ -1,5 +1,6 @@
 package org.networking.httpserver.handlers;
 
+import org.networking.httpserver.request.HttpRequestType;
 import org.networking.httpserver.response.HttpMessage;
 
 import java.io.*;
@@ -12,17 +13,20 @@ import static org.networking.httpserver.response.HttpResponseType.NOT_FOUND;
 public class FileHandler implements RequestHandler {
 
     String directory = System.getProperty("java.io.tmpdir");
-    public static void saveFile(String filename, String body, OutputStream output, String path) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path + filename))) {
+    public byte[] saveFile(String body, String path) throws IOException {
+        Path localPath = Path.of(directory + path);
+        Files.createDirectories(localPath.getParent());
+        try (BufferedWriter writer = Files.newBufferedWriter(localPath)) {
             writer.write(body);
+            writer.flush();
         }
 
-        output.write(CREATED.getResponseValueBytes());
+       return CREATED.getResponseValueBytes();
 
     }
 
     public byte[] getFile(HttpMessage httpMessage) throws IOException {
-        Path filePath = Path.of(directory + httpMessage.getPathFromRequest("/files/"));
+        Path filePath = Path.of(directory + httpMessage.getPath());
         File file = filePath.toFile();
         if (!file.exists()) {
             return NOT_FOUND.getResponseValueBytes();
@@ -43,6 +47,11 @@ public class FileHandler implements RequestHandler {
 
     @Override
     public byte[] handle(HttpMessage request) throws IOException {
-        return getFile(request);
+        if (request.getMethod().equalsIgnoreCase(HttpRequestType.GET.toString())) {
+            return getFile(request);
+        } else {
+            return saveFile(request.getBody(), request.getPath());
+        }
+
     }
 }

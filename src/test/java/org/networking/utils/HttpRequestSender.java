@@ -23,12 +23,22 @@ public class HttpRequestSender {
     public static HttpMessage sendHttpRequest(HttpRequestType httpRequestType, String path) {
         return sendHttpRequest(httpRequestType, "", path);
     }
+
     public static HttpMessage sendHttpRequest(HttpRequestType httpRequestType, String body, String path) {
         try {
-            Socket socket = new Socket("localhost", 4221);;
-            String httpRequest = String.format("%s %s HTTP/1.1\r\n", httpRequestType, path) +
-                    "Host: localhost\r\n" +
-                    "Connection: close\r\n\r\n";
+            Socket socket = new Socket("localhost", 4221);
+            StringBuilder httpRequest = new StringBuilder();
+            httpRequest.append(String.format("%s %s HTTP/1.1\r\n", httpRequestType, path))
+                    .append("Host: localhost\r\n")
+                    .append("Connection: close\r\n");
+
+            if (!body.isEmpty()) {
+                httpRequest.append("Content-Type: application/json\r\n") // Change as needed
+                        .append("Content-Length: ").append(body.length()).append("\r\n\r\n")
+                        .append(body).append("\r\n\r\n");
+            } else {
+                httpRequest.append("\r\n");
+            }
 
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
             out.println(httpRequest);
@@ -38,7 +48,7 @@ public class HttpRequestSender {
                     .until(in::ready);
 
             assertThat(in.ready()).isTrue();
-            var resString =  in.lines().collect(Collectors.joining("\r\n"));
+            var resString = in.lines().collect(Collectors.joining("\r\n"));
 
             socket.close();
 
