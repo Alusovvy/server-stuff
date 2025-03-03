@@ -1,13 +1,7 @@
 package org.networking.httpserver;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Order;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.networking.httpserver.request.HttpRequestType;
-
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -16,7 +10,7 @@ import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.networking.utils.HttpRequestSender.sendHttpRequest;
-
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class HttpServerTest {
     private ServerSocket serverSocket;
 
@@ -71,6 +65,20 @@ class HttpServerTest {
     void getFileResponseTest() {
         var getFileResponse = sendHttpRequest(HttpRequestType.GET, "/files/pliczek.txt");
         assertThat(getFileResponse.getBody()).isEqualToIgnoringCase("majtkimarynarza, dupapiekarza");
+    }
+
+
+    @Test
+    @Order(2)
+    void updateFile() throws IOException {
+        String pathForFile = "/files/pliczek.txt";
+        var response = sendHttpRequest(HttpRequestType.PUT, ", cosinnego, cosnowego",pathForFile );
+        assertThat(response.getResponseType().getStatusCode()).isEqualTo(200);
+
+        Path filepath = Path.of(System.getProperty("java.io.tmpdir")+pathForFile);
+
+        var file = Files.readString(filepath);
+        assertThat(file).isEqualTo("majtkimarynarza, dupapiekarza, cosinnego, cosnowego");
     }
 
     @Test

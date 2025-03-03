@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 @AllArgsConstructor
 @NoArgsConstructor
 public class HttpMessage {
-    private static final Pattern PATH_WITH_RESPONSE_TYPE_MATCH = Pattern.compile("(POST|GET) (\\S+) HTTP/1.1$");
+    private static final Pattern PATH_WITH_RESPONSE_TYPE_MATCH = Pattern.compile("(POST|GET|PUT) (\\S+) HTTP/1.1$");
     private static final Pattern STATUS_CODE_PATTERN = Pattern.compile("\\d[0-9]+");
 
     private String body;
